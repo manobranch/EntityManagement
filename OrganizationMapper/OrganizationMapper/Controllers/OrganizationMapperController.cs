@@ -41,7 +41,7 @@ namespace OrganizationMapper.Controllers
         }
 
         [HttpPost]
-        public string SomeString(IFormFile file)
+        public string Post(IFormFile file)
         {
             try
             {
