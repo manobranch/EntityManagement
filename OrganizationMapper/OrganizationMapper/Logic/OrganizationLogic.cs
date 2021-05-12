@@ -30,7 +30,7 @@ namespace OrganizationMapper.Logic
 
             // Sometimes, the shares are empty for a company. 
             // Sometimes, Company X does not have a subsidiary but Company Y has Company X as parent. 
-            // Lets adjust these relations below, if needed
+            // Lets adjust these relations below, if needed for the case task.
             bool adjustFormissingData = true;
             if (adjustFormissingData)
             {
@@ -49,27 +49,25 @@ namespace OrganizationMapper.Logic
         {
             foreach (var entity in entitiesList)
             {
+                // Find any company for which the current entity is parent.
                 var havingEntityAsParent = (from hits in entitiesList
-                           where hits.Parents.Any(a => a.OrganizationalNumber == entity.OrganizationalNumber)
-                           select hits).ToList();
+                                            where hits.Parents.Any(a => a.OrganizationalNumber == entity.OrganizationalNumber)
+                                            select hits).ToList();
 
-                if(entity.Subsidiaries.Count != havingEntityAsParent.Count)
+                // Get the subsidiaries that is not in entities list
+                var missingSubsidiaries = havingEntityAsParent.Where(x => !entity.Subsidiaries.Any(z => z.OrganizationalNumber == x.OrganizationalNumber)).ToList();
+
+                foreach (var subSidiary in missingSubsidiaries)
                 {
-                    var missingSubsidiaries = havingEntityAsParent.Where(x => !entity.Subsidiaries.Any(z => z.OrganizationalNumber == x.OrganizationalNumber)).ToList();
+                    var share = (from hits in subSidiary.Parents
+                                 where hits.OrganizationalNumber == entity.OrganizationalNumber
+                                 select hits.Share).FirstOrDefault()?.ToString();
 
-                    foreach (var subSidiary in missingSubsidiaries)
+                    entity.Subsidiaries.Add(new BusinessRelation()
                     {
-                        var share = (from hits in subSidiary.Parents
-                                     where hits.OrganizationalNumber == entity.OrganizationalNumber
-                                     select hits.Share).FirstOrDefault().ToString();
-
-                        entity.Subsidiaries.Add(new BusinessRelation()
-                        {
-                            OrganizationalNumber = subSidiary.OrganizationalNumber,
-                            Share = share
-                        });
-
-                    }
+                        OrganizationalNumber = subSidiary.OrganizationalNumber,
+                        Share = share
+                    });
                 }
             }
 
@@ -94,8 +92,10 @@ namespace OrganizationMapper.Logic
 
         private string FindShareFromSubsidiary(string entityOrgNr, string subOrgNr, List<BusinessEntity> entitiesList)
         {
+            // Get the subsidiary for the entity.
             var subEntity = entitiesList.Where(a => a.OrganizationalNumber == subOrgNr).FirstOrDefault();
 
+            // Find the share from the parent information
             foreach (var parent in subEntity?.Parents)
             {
                 if (parent.OrganizationalNumber == entityOrgNr)

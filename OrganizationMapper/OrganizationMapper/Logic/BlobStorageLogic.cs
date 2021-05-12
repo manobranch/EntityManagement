@@ -19,11 +19,7 @@ namespace OrganizationMapper.Logic
 
         public void UploadBlob(string storageConn, IFormFile file)
         {
-            BlobServiceClient blobServiceClient = new BlobServiceClient(storageConn);
-
-            BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(_containerName);
-
-            BlobClient blobClient = containerClient.GetBlobClient(_inputFileName);
+            var blobClient = GetBlobClient(storageConn);
 
             using var stream = file.OpenReadStream();
             blobClient.Upload(stream, true);
@@ -31,11 +27,7 @@ namespace OrganizationMapper.Logic
 
         public List<string> GetOrganizationData(string storageConn)
         {
-            BlobServiceClient blobServiceClient = new BlobServiceClient(storageConn);
-
-            BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(_containerName);
-
-            BlobClient blobClient = containerClient.GetBlobClient(_inputFileName);
+            var blobClient = GetBlobClient(storageConn);
 
             var returnList = new List<string>();
 
@@ -49,6 +41,15 @@ namespace OrganizationMapper.Logic
             }
 
             return returnList;
+        }
+
+        private BlobClient GetBlobClient(string storageConn)
+        {
+            BlobServiceClient blobServiceClient = new BlobServiceClient(storageConn);
+
+            BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(_containerName);
+
+            return containerClient.GetBlobClient(_inputFileName);
         }
     }
 }

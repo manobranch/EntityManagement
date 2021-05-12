@@ -36,7 +36,7 @@ namespace OrganizationMapper.Controllers
             }
             catch (Exception e)
             {
-                return $"Something went wront: {e.Message}";
+                return $"Something went wrong: {e.Message}";
             }
         }
 
