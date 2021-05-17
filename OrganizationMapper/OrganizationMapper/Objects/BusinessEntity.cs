@@ -20,6 +20,11 @@ namespace OrganizationMapper.Objects
         public List<BusinessRelation> Subsidiaries { get; set; }
         public string AdministeredBy { get; set; }
 
+        public BusinessEntity()
+        {
+
+        }
+
         public BusinessEntity(string[] splittedLine)
         {
             CompanyName = splittedLine[0];

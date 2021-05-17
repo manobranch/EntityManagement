@@ -30,7 +30,9 @@ namespace OrganizationMapper.Controllers
             {
                 string dbConn = _configuration.GetSection("ConnectionStrings").GetSection("StorageConnection").Value;
 
-                var json = new OrganizationLogic().GetOrganizationDataAsJson(dbConn);
+                var entitiesList = new OrganizationLogic().GetOrganizationData(dbConn);
+                
+                var json = new OrganizationLogic().GetOrganizationDataAsJson(entitiesList);
 
                 return json;
             }

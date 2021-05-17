@@ -22,11 +22,9 @@ namespace OrganizationMapper.Logic
             blobStorageLogic.UploadBlob(storageConn, file);
         }
 
-        public string GetOrganizationDataAsJson(string storageConn)
+        public List<BusinessEntity> GetOrganizationData(string storageConn)
         {
-            var organizationRawData = blobStorageLogic.GetOrganizationData(storageConn);
-
-            var entitiesList = MapOrganizationRawData(organizationRawData);
+            var entitiesList = FetchEntitiesList(storageConn);
 
             // Sometimes, the shares are empty for a company. 
             // Sometimes, Company X does not have a subsidiary but Company Y has Company X as parent. 
@@ -42,10 +40,22 @@ namespace OrganizationMapper.Logic
                 // Adjust for missing parents
             }
 
+            return entitiesList;
+        }
+
+        public string GetOrganizationDataAsJson(List<BusinessEntity> entitiesList)
+        {
             return JsonSerializer.Serialize(entitiesList);
         }
 
-        private List<BusinessEntity> AdjustForMissingSubsidiary(List<BusinessEntity> entitiesList)
+        public List<BusinessEntity> FetchEntitiesList(string storageConn)
+        {
+            var organizationRawData = blobStorageLogic.GetOrganizationData(storageConn);
+
+            return MapOrganizationRawData(organizationRawData);
+        }
+
+        public List<BusinessEntity> AdjustForMissingSubsidiary(List<BusinessEntity> entitiesList)
         {
             foreach (var entity in entitiesList)
             {
