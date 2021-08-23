@@ -21,7 +21,7 @@ namespace OrganizationMapper.Logic
         {
             blobStorageLogic.UploadBlob(storageConn, file);
         }
-
+        ///
         public List<BusinessEntity> GetOrganizationData(string storageConn)
         {
             var entitiesList = FetchEntitiesList(storageConn);
